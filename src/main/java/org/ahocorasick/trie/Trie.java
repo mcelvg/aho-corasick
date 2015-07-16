@@ -13,39 +13,20 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Based on the Aho-Corasick white paper, Bell technologies: ftp://163.13.200.222/assistant/bearhero/prog/%A8%E4%A5%A6/ac_bm.pdf
  * @author Robert Bor
  */
-public class Trie implements Serializable, Comparable<Trie> {
+public class Trie implements Serializable {
+
+    private static final long serialVersionUID = -4115579398303123774L;
 
     private TrieConfig trieConfig;
 
     private State rootState;
 
-    private boolean failureStatesConstructed = false;
-
-    public Trie(TrieConfig trieConfig) {
+    private Trie(TrieConfig trieConfig) {
         this.trieConfig = trieConfig;
         this.rootState = new State();
     }
 
-    public Trie() {
-        this(new TrieConfig());
-    }
-
-    public Trie caseInsensitive() {
-        this.trieConfig.setCaseInsensitive(true);
-        return this;
-    }
-
-    public Trie removeOverlaps() {
-        this.trieConfig.setAllowOverlaps(false);
-        return this;
-    }
-
-    public Trie onlyWholeWords() {
-        this.trieConfig.setOnlyWholeWords(true);
-        return this;
-    }
-
-    public void addKeyword(String keyword) {
+    private void addKeyword(String keyword) {
         if (keyword == null || keyword.length() == 0) {
             return;
         }
@@ -84,14 +65,12 @@ public class Trie implements Serializable, Comparable<Trie> {
         return new MatchToken(text.substring(emit.getStart(), emit.getEnd()+1), emit);
     }
 
-    @SuppressWarnings("unchecked")
     public Collection<Emit> parseText(String text) {
         return parseText(text, false);
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<Emit> parseText(String text, Boolean onlyWholeWords) {
-        checkForConstructedFailureStates();
-
         int position = 0;
         State currentState = this.rootState;
         List<Emit> collectedEmits = new ArrayList<Emit>();
@@ -146,16 +125,9 @@ public class Trie implements Serializable, Comparable<Trie> {
         return newCurrentState;
     }
 
-    private void checkForConstructedFailureStates() {
-        if (!this.failureStatesConstructed) {
-            constructFailureStates();
-        }
-    }
-
     private void constructFailureStates() {
         Queue<State> queue = new LinkedBlockingDeque<State>();
 
-        int i = 0;
         // First, set the fail state of all depth 1 states to the root state
         for (State depthOneState : this.rootState.getStates()) {
             if (depthOneState != null) {
@@ -163,7 +135,6 @@ public class Trie implements Serializable, Comparable<Trie> {
                 queue.add(depthOneState);
             }
         }
-        this.failureStatesConstructed = true;
 
         // Second, determine the fail state for all depth > 1 state
         while (!queue.isEmpty()) {
@@ -206,21 +177,41 @@ public class Trie implements Serializable, Comparable<Trie> {
         constructFailureStates();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Trie))
-            return false;
-        return compareTo((Trie) obj) == 0;
+    public static TrieBuilder builder() {
+        return new TrieBuilder();
     }
 
-    @Override
-    public int compareTo(Trie o) {
-        if (!this.trieConfig.equals(o.trieConfig))
-            return 1;
-        if (!this.rootState.equals(o.rootState))
-            return 1;
-        if (!this.failureStatesConstructed == o.failureStatesConstructed)
-            return 1;
-        return 0;
+    public static class TrieBuilder {
+
+        private TrieConfig trieConfig = new TrieConfig();
+
+        private Trie trie = new Trie(trieConfig);
+
+        private TrieBuilder() {}
+
+        public TrieBuilder caseInsensitive() {
+            this.trieConfig.setCaseInsensitive(true);
+            return this;
+        }
+
+        public TrieBuilder removeOverlaps() {
+            this.trieConfig.setAllowOverlaps(false);
+            return this;
+        }
+
+        public TrieBuilder onlyWholeWords() {
+            this.trieConfig.setOnlyWholeWords(true);
+            return this;
+        }
+
+        public TrieBuilder addKeyword(String keyword) {
+            trie.addKeyword(keyword);
+            return this;
+        }
+
+        public Trie build() {
+            trie.constructFailureStates();
+            return trie;
+        }
     }
 }

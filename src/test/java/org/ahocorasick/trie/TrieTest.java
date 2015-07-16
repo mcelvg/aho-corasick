@@ -13,8 +13,9 @@ public class TrieTest {
 
     @Test
     public void keywordAndTextAreTheSame() {
-        Trie trie = new Trie();
-        trie.addKeyword("abc");
+        Trie trie = Trie.builder()
+            .addKeyword("abc")
+            .build();
         Collection<Emit> emits = trie.parseText("abc");
         Iterator<Emit> iterator = emits.iterator();
         checkEmit(iterator.next(), 0, 2, "abc");
@@ -22,8 +23,9 @@ public class TrieTest {
 
     @Test
     public void textIsLongerThanKeyword() {
-        Trie trie = new Trie();
-        trie.addKeyword("abc");
+        Trie trie = Trie.builder()
+            .addKeyword("abc")
+            .build();
         Collection<Emit> emits = trie.parseText(" abc");
         Iterator<Emit> iterator = emits.iterator();
         checkEmit(iterator.next(), 1, 3, "abc");
@@ -31,10 +33,11 @@ public class TrieTest {
 
     @Test
     public void variousKeywordsOneMatch() {
-        Trie trie = new Trie();
-        trie.addKeyword("abc");
-        trie.addKeyword("bcd");
-        trie.addKeyword("cde");
+        Trie trie = Trie.builder()
+            .addKeyword("abc")
+            .addKeyword("bcd")
+            .addKeyword("cde")
+            .build();
         Collection<Emit> emits = trie.parseText("bcd");
         Iterator<Emit> iterator = emits.iterator();
         checkEmit(iterator.next(), 0, 2, "bcd");
@@ -42,11 +45,12 @@ public class TrieTest {
 
     @Test
     public void ushersTest() {
-        Trie trie = new Trie();
-        trie.addKeyword("hers");
-        trie.addKeyword("his");
-        trie.addKeyword("she");
-        trie.addKeyword("he");
+        Trie trie = Trie.builder()
+            .addKeyword("hers")
+            .addKeyword("his")
+            .addKeyword("she")
+            .addKeyword("he")
+            .build();
         Collection<Emit> emits = trie.parseText("ushers");
         assertEquals(3, emits.size()); // she @ 3, he @ 3, hers @ 5
         Iterator<Emit> iterator = emits.iterator();
@@ -57,8 +61,9 @@ public class TrieTest {
 
     @Test
     public void misleadingTest() {
-        Trie trie = new Trie();
-        trie.addKeyword("hers");
+        Trie trie = Trie.builder()
+            .addKeyword("hers")
+            .build();
         Collection<Emit> emits = trie.parseText("h he her hers");
         Iterator<Emit> iterator = emits.iterator();
         checkEmit(iterator.next(), 9, 12, "hers");
@@ -66,11 +71,12 @@ public class TrieTest {
 
     @Test
     public void recipes() {
-        Trie trie = new Trie();
-        trie.addKeyword("veal");
-        trie.addKeyword("cauliflower");
-        trie.addKeyword("broccoli");
-        trie.addKeyword("tomatoes");
+        Trie trie = Trie.builder()
+            .addKeyword("veal")
+            .addKeyword("cauliflower")
+            .addKeyword("broccoli")
+            .addKeyword("tomatoes")
+            .build();
         Collection<Emit> emits = trie.parseText("2 cauliflowers, 3 tomatoes, 4 slices of veal, 100g broccoli");
         Iterator<Emit> iterator = emits.iterator();
         checkEmit(iterator.next(), 2, 12, "cauliflower");
@@ -81,9 +87,10 @@ public class TrieTest {
 
     @Test
     public void longAndShortOverlappingMatch() {
-        Trie trie = new Trie();
-        trie.addKeyword("he");
-        trie.addKeyword("hehehehe");
+        Trie trie = Trie.builder()
+            .addKeyword("he")
+            .addKeyword("hehehehe")
+            .build();
         Collection<Emit> emits = trie.parseText("hehehehehe");
         Iterator<Emit> iterator = emits.iterator();
         checkEmit(iterator.next(), 0, 1, "he");
@@ -97,10 +104,11 @@ public class TrieTest {
 
     @Test
     public void nonOverlapping() {
-        Trie trie = new Trie().removeOverlaps();
-        trie.addKeyword("ab");
-        trie.addKeyword("cba");
-        trie.addKeyword("ababc");
+        Trie trie = Trie.builder().removeOverlaps()
+            .addKeyword("ab")
+            .addKeyword("cba")
+            .addKeyword("ababc")
+            .build();
         Collection<Emit> emits = trie.parseText("ababcbab");
         assertEquals(2, emits.size());
         Iterator<Emit> iterator = emits.iterator();
@@ -111,25 +119,27 @@ public class TrieTest {
 
     @Test
     public void startOfChurchillSpeech() {
-        Trie trie = new Trie().removeOverlaps();
-        trie.addKeyword("T");
-        trie.addKeyword("u");
-        trie.addKeyword("ur");
-        trie.addKeyword("r");
-        trie.addKeyword("urn");
-        trie.addKeyword("ni");
-        trie.addKeyword("i");
-        trie.addKeyword("in");
-        trie.addKeyword("n");
-        trie.addKeyword("urning");
+        Trie trie = Trie.builder().removeOverlaps()
+            .addKeyword("T")
+            .addKeyword("u")
+            .addKeyword("ur")
+            .addKeyword("r")
+            .addKeyword("urn")
+            .addKeyword("ni")
+            .addKeyword("i")
+            .addKeyword("in")
+            .addKeyword("n")
+            .addKeyword("urning")
+            .build();
         Collection<Emit> emits = trie.parseText("Turning");
         assertEquals(2, emits.size());
     }
 
     @Test
     public void partialMatch() {
-        Trie trie = new Trie().onlyWholeWords();
-        trie.addKeyword("sugar");
+        Trie trie = Trie.builder().onlyWholeWords()
+            .addKeyword("sugar")
+            .build();
         Collection<Emit> emits = trie.parseText("sugarcane sugarcane sugar canesugar"); // left, middle, right test
         assertEquals(1, emits.size()); // Match must not be made
         checkEmit(emits.iterator().next(), 20, 24, "sugar");
@@ -137,10 +147,11 @@ public class TrieTest {
 
     @Test
     public void tokenizeFullSentence() {
-        Trie trie = new Trie();
-        trie.addKeyword("Alpha");
-        trie.addKeyword("Beta");
-        trie.addKeyword("Gamma");
+        Trie trie = Trie.builder()
+            .addKeyword("Alpha")
+            .addKeyword("Beta")
+            .addKeyword("Gamma")
+            .build();
         Collection<Token> tokens = trie.tokenize("Hear: Alpha team first, Beta from the rear, Gamma in reserve");
         assertEquals(7, tokens.size());
         Iterator<Token> tokensIt = tokens.iterator();
@@ -155,27 +166,25 @@ public class TrieTest {
 
     @Test
     public void serializeTrie() {
-        Trie trie = new Trie();
-        trie.addKeyword("he");
-        trie.addKeyword("hehehehe");
-        trie.addKeyword("Alpha");
-        trie.addKeyword("Beta");
-        trie.addKeyword("Gamma");
-
-        Collection<Emit> emits = trie.parseText("hehehehehe");
-        Iterator<Emit> iterator = emits.iterator();
-
+        Trie trie = Trie.builder()
+            .addKeyword("he")
+            .addKeyword("hehehehe")
+            .addKeyword("Alpha")
+            .addKeyword("Beta")
+            .addKeyword("Gamma")
+            .build();
         Serializable copy = SerializationUtils.clone(trie);
         assert(trie.equals(copy));
     }
 
     @Test
     public void bug5InGithubReportedByXCurry() {
-        Trie trie = new Trie().caseInsensitive().onlyWholeWords();
-        trie.addKeyword("turning");
-        trie.addKeyword("once");
-        trie.addKeyword("again");
-        trie.addKeyword("börkü");
+        Trie trie = Trie.builder().caseInsensitive().onlyWholeWords()
+            .addKeyword("turning")
+            .addKeyword("once")
+            .addKeyword("again")
+            .addKeyword("börkü")
+            .build();
         Collection<Emit> emits = trie.parseText("TurninG OnCe AgAiN BÖRKÜ");
         assertEquals(4, emits.size()); // Match must not be made
         Iterator<Emit> it = emits.iterator();
@@ -187,11 +196,12 @@ public class TrieTest {
 
     @Test
     public void caseInsensitive() {
-        Trie trie = new Trie().caseInsensitive();
-        trie.addKeyword("turning");
-        trie.addKeyword("once");
-        trie.addKeyword("again");
-        trie.addKeyword("börkü");
+        Trie trie = Trie.builder().caseInsensitive()
+            .addKeyword("turning")
+            .addKeyword("once")
+            .addKeyword("again")
+            .addKeyword("börkü")
+            .build();
         Collection<Emit> emits = trie.parseText("TurninG OnCe AgAiN BÖRKÜ");
         assertEquals(4, emits.size()); // Match must not be made
         Iterator<Emit> it = emits.iterator();
@@ -203,10 +213,11 @@ public class TrieTest {
 
     @Test
     public void tokenizeTokensInSequence() {
-        Trie trie = new Trie();
-        trie.addKeyword("Alpha");
-        trie.addKeyword("Beta");
-        trie.addKeyword("Gamma");
+        Trie trie = Trie.builder()
+            .addKeyword("Alpha")
+            .addKeyword("Beta")
+            .addKeyword("Gamma")
+            .build();
         Collection<Token> tokens = trie.tokenize("Alpha Beta Gamma");
         assertEquals(5, tokens.size());
     }
@@ -214,8 +225,9 @@ public class TrieTest {
     // Test offered by XCurry, https://github.com/robert-bor/aho-corasick/issues/7
     @Test
     public void zeroLengthTestBug7InGithubReportedByXCurry() {
-        Trie trie = new Trie().removeOverlaps().onlyWholeWords().caseInsensitive();
-        trie.addKeyword("");
+        Trie trie = Trie.builder().removeOverlaps().onlyWholeWords().caseInsensitive()
+            .addKeyword("")
+            .build();
         trie.tokenize("Try a natural lip and subtle bronzer to keep all the focus on those big bright eyes with NARS Eyeshadow Duo in Rated R And the winner is... Boots No7 Advanced Renewal Anti-ageing Glycolic Peel Kit ($25 amazon.com) won most-appealing peel.");
     }
 
@@ -223,9 +235,10 @@ public class TrieTest {
     @Test
     public void unicodeIssueBug8ReportedByDwyerk() {
         String target = "LİKE THIS"; // The second character ('İ') is Unicode, which was read by AC as a 2-byte char
-        Trie trie = new Trie().caseInsensitive().onlyWholeWords();
         assertEquals("THIS", target.substring(5,9)); // Java does it the right way
-        trie.addKeyword("this");
+        Trie trie = Trie.builder().caseInsensitive().onlyWholeWords()
+            .addKeyword("this")
+            .build();
         Collection<Emit> emits = trie.parseText(target);
         assertEquals(1, emits.size());
         Iterator<Emit> it = emits.iterator();

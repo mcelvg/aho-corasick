@@ -31,6 +31,8 @@ import java.util.TreeMap;
  */
 public class State implements Serializable, Comparable<State> {
 
+    private static final long serialVersionUID = 3190955813379928807L;
+
     /** effective the size of the keyword */
     private final int depth;
 
@@ -153,6 +155,7 @@ public class State implements Serializable, Comparable<State> {
         stream.writeObject(emits);
     }
 
+    @SuppressWarnings("unchecked")
     private void readObject(java.io.ObjectInputStream stream)
             throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
 
